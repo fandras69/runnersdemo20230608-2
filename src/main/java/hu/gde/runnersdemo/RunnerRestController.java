@@ -42,6 +42,21 @@ public class RunnerRestController {
         }
     }
 
+    @GetMapping("/averagepace")
+    public double getAveragePace() {
+        List<RunnerEntity> runnerList = runnerRepository.findAll();
+        if (!runnerList.isEmpty()) {
+            int sumOfPace = 0;
+            int numberOfPace = 0;
+            for(int i = 0; i < runnerList.size(); i++){
+                sumOfPace += runnerList.get(i).getPace();
+                numberOfPace++;
+            }
+            return (double) sumOfPace / numberOfPace;
+        } else {
+            return -1.00;
+        }
+    }
     @GetMapping("/biggestshoesize")
     public String getBiggestShoeSize() {
         List<RunnerEntity> runnerList = runnerRepository.findAll();
