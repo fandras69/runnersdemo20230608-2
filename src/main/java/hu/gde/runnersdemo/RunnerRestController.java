@@ -15,10 +15,13 @@ public class RunnerRestController {
     private LapTimeRepository lapTimeRepository;
     private RunnerRepository runnerRepository;
 
+    private ShoeNameRepository shoeNameRepository;
+
     @Autowired
-    public RunnerRestController(RunnerRepository runnerRepository, LapTimeRepository lapTimeRepository) {
+    public RunnerRestController(RunnerRepository runnerRepository, LapTimeRepository lapTimeRepository, ShoeNameRepository shoeNameRepository) {
         this.runnerRepository = runnerRepository;
         this.lapTimeRepository = lapTimeRepository;
+        this.shoeNameRepository = shoeNameRepository;
     }
 
     @GetMapping("/{id}")
@@ -40,6 +43,21 @@ public class RunnerRestController {
         } else {
             return -1.0;
         }
+    }
+
+    @PostMapping("/{id}/changeshoename")
+    public ResponseEntity<String> changeShoeName(@PathVariable Long id, @RequestBody ShoeNameRequest shoeNameRequest) {
+        RunnerEntity runner = runnerRepository.findById(id).orElse(null);
+        ShoeNameEntity shoeName = shoeNameRepository.findById(shoeNameRequest.shoeNameId).orElse(null);
+
+        if (runner == null || shoeName == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("HIBA! A futó / cipő nem található!");
+        }
+
+        runner.setShoeName(shoeName);
+        runnerRepository.save(runner);
+
+        return ResponseEntity.ok("A futó cipőtípusa megváltoztatva.");
     }
 
     @GetMapping("/averagepace")
@@ -100,6 +118,18 @@ public class RunnerRestController {
 
         public void setLapTimeSeconds(int lapTimeSeconds) {
             this.lapTimeSeconds = lapTimeSeconds;
+        }
+    }
+
+    public static class ShoeNameRequest{
+        private long shoeNameId;
+
+        public long getShoeNameId() {
+            return shoeNameId;
+        }
+
+        public void setShoeNameId(long shoeNameId) {
+            this.shoeNameId = shoeNameId;
         }
     }
 }
